@@ -39,7 +39,6 @@ def calc(day,month,year):
         if twodigyear in yVar[i]:
             y = i
 
-    print(day,m,c,y)
     dayOfWeek = (day + m + c + y) % 7
 
     #Compensate for Kraitchicks strange algorithm where the 0 = Saturday
