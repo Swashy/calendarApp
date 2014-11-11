@@ -1,12 +1,22 @@
-import calculateDay, time
+import time
+from calculateDayGaussian import calc
 
 def getDays(curMo,curYe):
     monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31]
     weekNames = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
     rows = []
-    firstDay = calculateDay.calc(1,curMo,curYe)
-    lastMonthDays = monthDays[curMo-1]
-    nextMonthDays = monthDays[curMo+1]
+    firstDay, leap = calc(1,curMo,curYe)
+    if leap == True:
+        monthDays[2] = 29
+    if curMo == 1:
+        lastMonthDays = monthDays[12]
+        nextMonthDays = monthDays[curMo+1]
+    elif curMo == 12:
+        lastMonthDays = monthDays[curMo-1]
+        nextMonthDays = monthDays[1]
+    else:
+        lastMonthDays = monthDays[curMo-1]
+        nextMonthDays = monthDays[curMo+1]
     
     '''
     Get the first week. Calculate the previous month's days to display by
@@ -24,7 +34,7 @@ def getDays(curMo,curYe):
 
     NOTE TO SELF:
     '''
-    lastDays = (lastMonthDays - firstDay[0]) + 1
+    lastDays = (lastMonthDays - firstDay) + 1
     row1 = []
     for i in range(lastDays,lastMonthDays+1):
         row1.append((i,1))
@@ -57,14 +67,24 @@ def getDays(curMo,curYe):
         # we have 7 days....
         # First number in our range is crazy because I have slice an element
         # out of a tuple in a list, which is in a list... haha.
-        for i in range(rows[-1][-1][1]+1, 999):
+        for i in range(rows[-1][-1][0]+1, 999):
             if len(tempRow) >= 7:
                 rows.append(tempRow)
                 break
             tempRow.append((i,1))
 
-    return rows
+    sequentialRows = []
+    for i in rows:
+        for l in i:
+            sequentialRows.append(l)
 
+    return sequentialRows
+
+if __name__ == "__main__":
+    x = getDays(2,2014)
+    print(x)
+    firstDay, leap = calc(1,2,2014)
+    print("First day is", firstDay)
 
 
 

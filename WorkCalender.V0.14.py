@@ -1,9 +1,13 @@
 from gi.repository import Gtk, Gdk
 import time
-import calculateDay
+from calculateDayGaussian import calc
+import genCalendar
 
-class calenderWindow(Gtk.Window):
+class calendarWindow(Gtk.Window):
     def __init__(self):
+        self.yearSub = 0
+        self.monthSub = 0
+
         self.curDa = int(time.strftime('%d'))
         self.curMo = int(time.strftime('%m'))
         self.curYe = int(time.strftime('%Y'))
@@ -24,11 +28,11 @@ class calenderWindow(Gtk.Window):
 
 
 
-#~~~~~~~Calender Grid setup
+#~~~~~~~Calendar Grid setup
         self.days = []
         self.calGrid = Gtk.Grid()
         self.calTitle = Gtk.Grid()
-        self.month = Gtk.Label(self.monthNames[self.curMo])
+        self.month = Gtk.Label(self.monthNames[self.curMo]+str(self.curYe))
         self.calendarLeft = Gtk.Button.new_from_icon_name("go-next-rtl",1)
         self.calendarRight = Gtk.Button.new_from_icon_name("go-next",1)
 
@@ -60,108 +64,66 @@ class calenderWindow(Gtk.Window):
         Gtk.main_quit()
 
     def calendarMove(self, button, direction):
-        for i in reversed(range(1,len(self.days)+1)):
-            self.days[i-1].destroy()
-            self.days.pop(i-1)
+
+        self.dePopulateCalendar()
         if direction == 0:
-            self.curMo = self.curMo-1
-            self.setupCalendar(self.curMo, self.curYe)
-        else:
-            self.curMo = self.curMo+1
-            self.setupCalendar(self.curMo, self.curYe)
-        self.month.set_label(self.monthNames[self.curMo])
+            self.curMo -=1
+        elif direction == 1:
+            self.curMo +=1
+
+        if self.curMo > 12:
+            self.curYe +=1
+            self.curMo -= 12
+
+        if self.curMo < 1:
+            self.curYe -=1
+            self.curMo += 12
+        
+        #print(self.monthSub, self.yearSub)
+        print("Current month is ",self.curMo+self.monthSub,"and year is",self.curYe-self.yearSub)
+        daysOfMonth = genCalendar.getDays(self.curMo+self.monthSub,self.curYe-self.yearSub)
+        self.populateCalendar(daysOfMonth)
+
+        #Refresh Screen!
         self.show_all()
 
     def setupCalendar(self,curMo,curYe):
-        print(curMo,curYe)
-#        def makeDay(number,arrayCount,count):    
+        curColumn = 0
+        curRow = 0
+        for i in range(42):
+            if curColumn > 6:
+                curColumn = 0
+                curRow+=1
+            self.days.append(Gtk.ListBox(vexpand=True,hexpand=True))
+#            self.days[i].insert(Gtk.Label(),1)
+            self.calGrid.attach(self.days[i],curColumn,curRow,1,1)
+            curColumn +=1
+        
+        #After setting up our listboxes in the right spots of the
+        #7 X 6 grid, call populate grid with the current month.
+        daysOfMonth = genCalendar.getDays(self.curMo,self.curYe)
+        self.populateCalendar(daysOfMonth)
 
-        self.days = []
-        monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31]
-        names = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+    # Inserts calendar days into the listboxes of calGrid
+    def populateCalendar(self,d):
+        self.month.set_label(self.monthNames[self.curMo]+" "+str(self.curYe))
+        count = 0
+        for i in self.days:
+            try:
+                i.insert(Gtk.Label(d[count][0]),1)
+            except:
+                print("!!",count,"!!!","\n",len(d))
+            count+=1
+    def dePopulateCalendar(self):
+        for i in self.days:
+            for widget in i:
+                i.remove(widget)
 
-        dayOfWeek,leap = calculateDay.calc(1,curMo,curYe)
-        print("First day of this month is",names[dayOfWeek])
-
-        if leap == True:
-            monthdays[1] = 29
-        arrayCount = 0
-        count = 1
-        firstWeek = True
-        nextCount = 1
-        # For loop for each week. Dispay 6 weeks in the calendar.
-        for i in range(0,6):
-            curCol = 0
-            #On the first week,
-            if firstWeek == True:
-                #Get amount of days to display. If the weekday is 3(Wednesday)
-                #then we have three previous days to display.
-                lastmonth = monthDays[curMo-1] #get last month days
-                #Say we have October(31), minus 3(Wednesday) would be 27.
-                #So for range 28, 29, 30, append the days
-                for l in range( (lastmonth-dayOfWeek+1) ,lastmonth+1):
-                    self.days.append(Gtk.ListBox.new())
-                    self.days[arrayCount].set_vexpand(True)
-                    self.days[arrayCount].set_hexpand(True)
-                    day = Gtk.Label(l)
-                    day.override_color(0,Gdk.RGBA(red=1,green=1,blue=1,alpha=0.2))
-                    self.days[arrayCount].insert(day,1)
-                    #self.days[arrayCount].insert(Gtk.Label(names[curCol]),1)
-                                         #widget,left of column, top of row
-                    self.calGrid.attach(self.days[arrayCount],curCol,i,1,1)
-                    arrayCount+=1
-                    curCol +=1
-                #For the rest of the days,
-                for j in range(dayOfWeek, 7):
-                    self.days.append(Gtk.ListBox.new())
-                    self.days[arrayCount].set_vexpand(True)
-                    self.days[arrayCount].set_hexpand(True)
-                    self.days[arrayCount].insert(Gtk.Label(count),1)
-                    #self.days[arrayCount].insert(Gtk.Label(names[curCol]),1)
-                    self.calGrid.attach(self.days[arrayCount],curCol,i,1,1)
-                    arrayCount+=1
-                    #Keep track of what day we're on.
-                    count+=1
-                    curCol +=1
-                firstWeek = False
-
-            # If we've finished the first sloppy week, do the middle ones!
-            elif firstWeek == False and count < monthDays[curMo]:
-                for l in range(0,7):
-                    # If we've reached the end of the month, get out of here!
-                    if count > monthDays[curMo]:
-                        continue
-                    self.days.append(Gtk.ListBox.new())
-                    self.days[arrayCount].set_vexpand(True)
-                    self.days[arrayCount].set_hexpand(True)
-                    self.days[arrayCount].insert(Gtk.Label(count),1)
-                    #self.days[arrayCount].insert(Gtk.Label(names[curCol]),1)
-                    self.calGrid.attach(self.days[arrayCount],curCol,i,1,1)
-                    arrayCount+=1
-                    #Keep track of what day we're on.
-                    count+=1
-                    curCol +=1
-            # Doing the last week from where we left off.
-            if count >= monthDays[curMo]:
-                for l in range(curCol,7):
-                    self.days.append(Gtk.ListBox.new())
-                    day = Gtk.Label(nextCount)
-                    self.days[arrayCount].set_vexpand(True)
-                    self.days[arrayCount].set_hexpand(True)
-                    day.override_color(0,Gdk.RGBA(red=1,green=1,blue=1,alpha=0.2))
-                    self.days[arrayCount].insert(day,1)
-                    #self.days[arrayCount].insert(Gtk.Label(names[curCol]),1)
-                    self.calGrid.attach(self.days[arrayCount],curCol,i,1,1)
-                    arrayCount+=1
-                    #Keep track of what day we're on.
-                    nextCount +=1
-                    curCol +=1
-                
                 
                     
 def main():
 
-    win = calenderWindow()
+    win = calendarWindow()
     win.populateGrid()
     win.setupCalendar(int(time.strftime('%m')),int(time.strftime('%Y')))
 
