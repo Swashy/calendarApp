@@ -7,12 +7,13 @@ def leapyear(y):
     else: return False
 
 def calc(curDa,curMo,curYe):
+
     
     if curMo == 1 or curMo == 2:
-        Y = curYe - 1
-    else:
-        Y = curYe
+        curYe = curYe - 1
+
     m = ((curMo + 9) % 12) + 1
+    print("m is:",m)
 
     y = str(curYe)
     c = y[0:2]
@@ -22,7 +23,6 @@ def calc(curDa,curMo,curYe):
 
     m = float(m)
     y = float(y)
-    Y = float(Y)
     c = float(c)
     d = float(d)
 
@@ -33,6 +33,19 @@ def calc(curDa,curMo,curYe):
 
 #For direct testing
 if __name__ == "__main__":
+    weekNames = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
+    monthNames=("NULL","January","February","March","April","May","June","July","August","September","October","November","December")
+
+    w = calc(1,1,2015)[0]
+    print("First day of",monthNames[1],2015, "is", weekNames[w])
+
+    w = calc(1,2,2015)[0]
+    print("First day of",monthNames[2],2015, "is", weekNames[w])
+    #for i in range(1,13):
+    #    w = calc(1,i,2014)[0]
+    #    print("First day of",monthNames[i], "is", weekNames[w],w)
+
+def derp():
     monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31]
     weekNames = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
 #    M = int(time.strftime('%m'))

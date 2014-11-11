@@ -36,17 +36,29 @@ def getDays(curMo,curYe):
     '''
     lastDays = (lastMonthDays - firstDay) + 1
     row1 = []
-    for i in range(lastDays,lastMonthDays+1):
-        row1.append((i,1))
-    count = 1
-    while len(row1) < 7:
-        row1.append((count,0))
-        count+=1
-    rows.append(row1)
+    # Edge-case, if the last day is sunday, then getting the amount of
+    #days to add from the last month won't work.
+    if firstDay == 0:
+        for i in range(lastMonthDays-6,lastMonthDays+1):
+            row1.append((i,1))
+        rows.append(row1)
+    else:
+        for i in range(lastDays,lastMonthDays+1):
+            row1.append((i,1))
+        count = 1
+        while len(row1) < 7:
+            row1.append((count,0))
+            count+=1
+        rows.append(row1)
 
     #From the last day of row1, till the end of the current month....
     tempRow = []
-    for i in range(row1[-1][0]+1, monthDays[curMo]+1):
+    last = row1[-1][0]+1
+    #If the last day of the last row was not the start of our month,
+    #that is to say the whole first week was last month, set it to 1
+    if row1[-1][0]+1 > 7:
+        last = 1
+    for i in range(1, monthDays[curMo]+1):
         if len(tempRow) == 7:
             rows.append(tempRow)
             tempRow = []
