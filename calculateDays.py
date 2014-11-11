@@ -1,6 +1,17 @@
 import time
 from math import floor
+'''
+The Guassian Algorithmn for determing the day of the week (0-6), a purely
+mathematical function, compared to tabular methods (mod 7 from a know date.)
 
+http://calendars.wikia.com/wiki/Calculating_the_day_of_the_week#The_algorithm_to_calculate_the_day_of_the_week
+
+https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week#Gauss.27_algorithm
+
+From calendars.wikia.com:
+w = (d + floor(2.6m-0.2) + y + floor(y/4) + floor(c/4) - 2c) % 7
+
+'''
 def leapyear(y):
     if (y % 4 == 0 and  y % 100 != 0) or (y % 400 == 0):
         return True

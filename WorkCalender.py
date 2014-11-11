@@ -1,6 +1,6 @@
 from gi.repository import Gtk, Gdk
 import time
-from calculateDayGaussian import calc
+from calculateDays import calc
 import genCalendar
 
 class calendarWindow(Gtk.Window):

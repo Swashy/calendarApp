@@ -1,5 +1,5 @@
 import time
-from calculateDayGaussian import calc
+from calculateDays import calc
 
 def getDays(curMo,curYe):
     monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31]
