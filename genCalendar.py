@@ -1,13 +1,17 @@
+#!/usr/bin/python3
+
 import time
-from calculateDays import calc
+import calculateDays
 
 def getDays(curMo,curYe):
     monthDays = [0,31,28,31,30,31,30,31,31,30,31,30,31]
     weekNames = ("Sun","Mon","Tue","Wed","Thu","Fri","Sat")
     rows = []
-    firstDay, leap = calc(1,curMo,curYe)
+    firstDay, leap = calculateDays.calcWeekDay(1,curMo,curYe)
     if leap == True:
         monthDays[2] = 29
+    else:
+        monthDays[2] = 28
     if curMo == 1:
         lastMonthDays = monthDays[12]
         nextMonthDays = monthDays[curMo+1]
@@ -58,7 +62,7 @@ def getDays(curMo,curYe):
     #that is to say the whole first week was last month, set it to 1
     if row1[-1][0]+1 > 7:
         last = 1
-    for i in range(1, monthDays[curMo]+1):
+    for i in range(last, monthDays[curMo]+1):
         if len(tempRow) == 7:
             rows.append(tempRow)
             tempRow = []
@@ -93,9 +97,9 @@ def getDays(curMo,curYe):
     return sequentialRows
 
 if __name__ == "__main__":
-    x = getDays(2,2014)
+    x = getDays(11,2013)
     print(x)
-    firstDay, leap = calc(1,2,2014)
+    firstDay, leap = calculateDays.calcWeekDay(1,2,2014)
     print("First day is", firstDay)
 
 

@@ -1,16 +1,14 @@
+#!/usr/bin/python3
+
 from gi.repository import Gtk, Gdk
 import time
-from calculateDays import calc
 import genCalendar
 
 class calendarWindow(Gtk.Window):
     def __init__(self):
-        self.yearSub = 0
-        self.monthSub = 0
-
-        self.curDa = int(time.strftime('%d'))
-        self.curMo = int(time.strftime('%m'))
-        self.curYe = int(time.strftime('%Y'))
+        self.curDay = int(time.strftime('%d'))
+        self.curMonth = int(time.strftime('%m'))
+        self.curYear = int(time.strftime('%Y'))
         Gtk.Window.__init__(self, title="Work Calendar V.0.1")
 
         self.monthNames=("NULL","January","February","March","April","May","June","July","August","September","October","November","December")
@@ -32,7 +30,7 @@ class calendarWindow(Gtk.Window):
         self.days = []
         self.calGrid = Gtk.Grid()
         self.calTitle = Gtk.Grid()
-        self.month = Gtk.Label(self.monthNames[self.curMo]+str(self.curYe))
+        self.monthTitle = Gtk.Label(self.monthNames[self.curMonth]+str(self.curYear))
         self.calendarLeft = Gtk.Button.new_from_icon_name("go-next-rtl",1)
         self.calendarRight = Gtk.Button.new_from_icon_name("go-next",1)
 
@@ -49,9 +47,9 @@ class calendarWindow(Gtk.Window):
         self.masterGrid.attach(self.button1,0,1,1,1)
         self.masterGrid.attach(self.dayEditor,0,2,1,1)
         self.masterGrid.attach(self.calTitle,1,0,1,1)
-        self.calTitle.attach(self.month,0,0,5,1)
-        self.calTitle.attach_next_to(self.calendarLeft,self.month,Gtk.PositionType.LEFT,1,1)
-        self.calTitle.attach_next_to(self.calendarRight,self.month,Gtk.PositionType.RIGHT,1,1)
+        self.calTitle.attach(self.monthTitle,0,0,5,1)
+        self.calTitle.attach_next_to(self.calendarLeft,self.monthTitle,Gtk.PositionType.LEFT,1,1)
+        self.calTitle.attach_next_to(self.calendarRight,self.monthTitle,Gtk.PositionType.RIGHT,1,1)
 
 
         self.calTitle.attach_next_to(Gtk.Label(self.names[0],hexpand=True),self.calendarLeft,Gtk.PositionType.BOTTOM,1,1)
@@ -67,27 +65,26 @@ class calendarWindow(Gtk.Window):
 
         self.dePopulateCalendar()
         if direction == 0:
-            self.curMo -=1
+            self.curMonth -=1
         elif direction == 1:
-            self.curMo +=1
+            self.curMonth +=1
 
-        if self.curMo > 12:
-            self.curYe +=1
-            self.curMo -= 12
+        if self.curMonth > 12:
+            self.curYear +=1
+            self.curMonth -= 12
 
-        if self.curMo < 1:
-            self.curYe -=1
-            self.curMo += 12
+        if self.curMonth < 1:
+            self.curYear -=1
+            self.curMonth += 12
         
-        #print(self.monthSub, self.yearSub)
-        print("Current month is ",self.curMo+self.monthSub,"and year is",self.curYe-self.yearSub)
-        daysOfMonth = genCalendar.getDays(self.curMo+self.monthSub,self.curYe-self.yearSub)
+       
+        daysOfMonth = genCalendar.getDays(self.curMonth,self.curYear)
         self.populateCalendar(daysOfMonth)
 
         #Refresh Screen!
         self.show_all()
 
-    def setupCalendar(self,curMo,curYe):
+    def setupCalendar(self,curMonth,curYear):
         curColumn = 0
         curRow = 0
         for i in range(42):
@@ -101,12 +98,12 @@ class calendarWindow(Gtk.Window):
         
         #After setting up our listboxes in the right spots of the
         #7 X 6 grid, call populate grid with the current month.
-        daysOfMonth = genCalendar.getDays(self.curMo,self.curYe)
+        daysOfMonth = genCalendar.getDays(self.curMonth,self.curYear)
         self.populateCalendar(daysOfMonth)
 
     # Inserts calendar days into the listboxes of calGrid
     def populateCalendar(self,d):
-        self.month.set_label(self.monthNames[self.curMo]+" "+str(self.curYe))
+        self.monthTitle.set_label(self.monthNames[self.curMonth]+" "+str(self.curYear))
         count = 0
         for i in self.days:
             try:
